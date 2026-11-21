@@ -1,0 +1,42 @@
+{
+  "title": "«우리 회사는 부서별로 직원 교육에 얼마나 투자하고 있을까?» — 내 질문",
+  "owner": "이 질문은 실제 회사 자료가 아닌 가상 데이터를 활용하여 부서별 직원 1인당 평균 교육훈련비를 분석하기 위해 작성하였다.",
+  "files": [
+    {
+      "match": "직원목록",
+      "table": "employees"
+    },
+    {
+      "match": "인사발령_2025",
+      "table": "personnel_actions"
+    },
+    {
+      "match": "교육훈련_2025",
+      "table": "training"
+    }
+  ],
+  "questions": [
+    {
+      "id": "training_cost_per_emp",
+      "q": "2025년 부서별 직원 1인당 평균 교육훈련비는 얼마인가?",
+      "judge": "부서별 직원 1인당 평균 교육훈련비를 비교하여 부서 간 교육 투자 수준의 차이를 확인하고, 향후 교육훈련 예산 배분과 직원 역량 개발 계획을 수립하는 데 활용한다.",
+      "sql": "WITH emp_cost AS (\n  SELECT emp_id, SUM(training_cost) AS cost\n  FROM training\n  WHERE training_date >= DATE '2025-01-01' AND training_date < DATE '2026-01-01'\n  GROUP BY emp_id\n),\nbase AS (\n  SELECT e.emp_id, e.department, COALESCE(c.cost, 0) AS cost\n  FROM employees e\n  LEFT JOIN emp_cost c ON c.emp_id = e.emp_id\n),\ndept AS (\n  SELECT department AS 부서,\n         COUNT(DISTINCT emp_id) AS 직원수,\n         SUM(cost) AS 교육비합계\n  FROM base\n  GROUP BY department\n  UNION ALL\n  SELECT '전체', COUNT(DISTINCT emp_id), SUM(cost) FROM base\n)\nSELECT 부서, 직원수, 교육비합계,\n       ROUND(교육비합계 * 1.0 / 직원수) AS 인당평균교육비\nFROM dept\nORDER BY 부서 = '전체', 인당평균교육비 DESC",
+      "check": [
+        {
+          "where": {
+            "부서": "전체"
+          },
+          "col": "직원수",
+          "want": 1202
+        },
+        {
+          "where": {
+            "부서": "전체"
+          },
+          "col": "교육비합계",
+          "want": 2549853000
+        }
+      ]
+    }
+  ]
+}

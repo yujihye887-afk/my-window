@@ -1,0 +1,145 @@
+{
+ "note": "한 줄이 무엇인지(grain)는 사람이 정한 것입니다. 조인하기 전에 반드시 봅니다.",
+ "tables": {
+  "employees": {
+   "grain": "직원 1명",
+   "rows": 1202,
+   "columns": [
+    {
+     "name": "emp_id",
+     "type": "VARCHAR"
+    },
+    {
+     "name": "department",
+     "type": "VARCHAR",
+     "values": [
+      "IT팀",
+      "경영지원팀",
+      "마케팅팀",
+      "생산팀",
+      "연구개발팀",
+      "영업팀",
+      "인사팀",
+      "재무팀"
+     ]
+    },
+    {
+     "name": "job_grade",
+     "type": "VARCHAR",
+     "values": [
+      "과장",
+      "대리",
+      "부장",
+      "사원",
+      "차장"
+     ]
+    },
+    {
+     "name": "hire_date",
+     "type": "DATE"
+    },
+    {
+     "name": "employment_status",
+     "type": "VARCHAR",
+     "values": [
+      "재직",
+      "퇴직",
+      "휴직"
+     ]
+    }
+   ]
+  },
+  "personnel_actions": {
+   "grain": "직원의 인사발령 1건",
+   "rows": 2049,
+   "columns": [
+    {
+     "name": "action_id",
+     "type": "VARCHAR"
+    },
+    {
+     "name": "emp_id",
+     "type": "VARCHAR"
+    },
+    {
+     "name": "action_date",
+     "type": "DATE"
+    },
+    {
+     "name": "action_type",
+     "type": "VARCHAR",
+     "values": [
+      "복직",
+      "부서이동",
+      "승진",
+      "휴직"
+     ]
+    },
+    {
+     "name": "new_department",
+     "type": "VARCHAR",
+     "values": [
+      "IT팀",
+      "경영지원팀",
+      "마케팅팀",
+      "생산팀",
+      "연구개발팀",
+      "영업팀",
+      "인사팀",
+      "재무팀"
+     ]
+    }
+   ]
+  },
+  "training": {
+   "grain": "직원의 교육훈련 수강 이력 1건",
+   "rows": 5302,
+   "columns": [
+    {
+     "name": "training_id",
+     "type": "VARCHAR"
+    },
+    {
+     "name": "emp_id",
+     "type": "VARCHAR"
+    },
+    {
+     "name": "training_date",
+     "type": "DATE"
+    },
+    {
+     "name": "training_type",
+     "type": "VARCHAR",
+     "values": [
+      "디지털역량교육",
+      "리더십교육",
+      "법정의무교육",
+      "직무교육"
+     ]
+    },
+    {
+     "name": "training_hours",
+     "type": "BIGINT"
+    },
+    {
+     "name": "training_cost",
+     "type": "BIGINT"
+    }
+   ]
+  }
+ },
+ "relations": [
+  {
+   "from": "employees.emp_id",
+   "to": "personnel_actions.emp_id",
+   "type": "1:N",
+   "join": "employees LEFT JOIN personnel_actions USING (emp_id) — 발령 이력이 없는 직원도 남긴다"
+  },
+  {
+   "from": "employees.emp_id",
+   "to": "training.emp_id",
+   "type": "1:N",
+   "join": "employees LEFT JOIN training USING (emp_id) — 교육 이력이 없는 직원도 남긴다"
+  }
+ ]
+}
